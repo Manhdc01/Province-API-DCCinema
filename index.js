@@ -26,26 +26,14 @@ const readJsonFile = (fileName) => {
     });
 };
 
-// Endpoint cho tỉnh
-app.get('/provinces', async (req, res) => {
-    try {
-        if (!provinceCache) {
-            provinceCache = await readJsonFile('provinces');
-        }
-        res.json(provinceCache);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
 // Endpoint cho huyện
 app.get('/districts/:provinceCode', async (req, res) => {
     try {
-        const provinceCode = req.params.provinceCode;
+        const provinceCode = req.params.provinceCode.padStart(2, '0'); // Đảm bảo mã tỉnh có 2 ký tự
         if (!districtCache) {
             districtCache = await readJsonFile('districts');
         }
-        const districts = districtCache.filter(district => district.provinceCode === provinceCode);
+        const districts = districtCache.filter(district => district.province_code === provinceCode);
         res.json(districts);
     } catch (err) {
         res.status(500).send(err.message);
@@ -53,18 +41,19 @@ app.get('/districts/:provinceCode', async (req, res) => {
 });
 
 // Endpoint cho xã
-app.get('/commune/:provinceCode/:districtCode', async (req, res) => {
+app.get('/wards/:districtCode', async (req, res) => { // Đây là sửa đổi từ '/commune/:provinceCode/:districtCode'
     try {
-        const { provinceCode, districtCode } = req.params;
+        const districtCode = req.params.districtCode.padStart(3, '0'); // Đảm bảo mã huyện có 3 ký tự
         if (!wardCache) {
             wardCache = await readJsonFile('wards');
         }
-        const wards = wardCache.filter(ward => ward.provinceCode === provinceCode && ward.districtCode === districtCode);
+        const wards = wardCache.filter(ward => ward.district_code === districtCode);
         res.json(wards);
     } catch (err) {
         res.status(500).send(err.message);
     }
 });
+
 
 const PORT = process.env.PORT || 3000; // Sử dụng cổng môi trường hoặc cổng 3000 nếu không có
 app.listen(PORT, () => {

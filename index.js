@@ -25,7 +25,17 @@ const readJsonFile = (fileName) => {
         });
     });
 };
-
+// Endpoint for provinces
+app.get('/provinces', async (req, res) => {
+    try {
+        if (!provinceCache) {
+            provinceCache = await readJsonFile('provinces');
+        }
+        res.json({ data: provinceCache });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
 // Endpoint cho huyện
 app.get('/districts/:provinceCode', async (req, res) => {
     try {
@@ -34,7 +44,7 @@ app.get('/districts/:provinceCode', async (req, res) => {
             districtCache = await readJsonFile('districts');
         }
         const districts = districtCache.filter(district => district.province_code === provinceCode);
-        res.json(districts);
+        res.json({ data: districts });
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -48,7 +58,7 @@ app.get('/wards/:districtCode', async (req, res) => { // Đây là sửa đổi 
             wardCache = await readJsonFile('wards');
         }
         const wards = wardCache.filter(ward => ward.district_code === districtCode);
-        res.json(wards);
+        res.json({ data: wards });
     } catch (err) {
         res.status(500).send(err.message);
     }
